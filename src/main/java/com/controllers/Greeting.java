@@ -1,4 +1,4 @@
-package com.example.demo.controllers;
+package com.controllers;
 
 public class Greeting {
 

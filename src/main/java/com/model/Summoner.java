@@ -1,4 +1,4 @@
-package com.example.demo.model;
+package com.model;
 
 import javax.persistence.*;
 import java.util.HashMap;

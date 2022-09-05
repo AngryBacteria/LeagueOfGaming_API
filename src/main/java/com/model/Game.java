@@ -1,4 +1,6 @@
-package com.example.demo.model;
+package com.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -12,6 +14,7 @@ public class Game {
     @SequenceGenerator(name = "game_SEQ", sequenceName = "game_SEQ",allocationSize=1)
     private Long id;
     @ManyToOne
+    @JsonIgnore
     private Summoner summoner;
     private String gameURL;
 
@@ -60,7 +63,7 @@ public class Game {
     private Integer timeCCingOthers;
     private Integer totalTimeSpentDead;
     private boolean win;
-    private LocalDateTime gameEnd;
+    transient private LocalDateTime gameEnd;
 
     public Game(Summoner summoner, String gameURL) {
         this.summoner = summoner;
