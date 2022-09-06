@@ -8,16 +8,17 @@ import java.util.Map;
 public class Summoner {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(generator = "SUMMONER_SEQ", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "SUMMONER_SEQ", sequenceName = "SUMMONER_SEQ",allocationSize=1)
     private Long id;
     private String name;
     @Column(unique=true)
     private String puuid;
 
-
     @OneToMany(mappedBy = "summoner", cascade = CascadeType.PERSIST)
     private Map<String, Game> games;
 
+    private String pictureURL;
 
     public Summoner(String name, String puuid) {
         this.name = name;
@@ -60,6 +61,14 @@ public class Summoner {
 
     public Map<String, Game> getGames() {
         return games;
+    }
+
+    public String getPictureURL() {
+        return pictureURL;
+    }
+
+    public void setPictureURL(String pictureURL) {
+        this.pictureURL = pictureURL;
     }
 
     @Override

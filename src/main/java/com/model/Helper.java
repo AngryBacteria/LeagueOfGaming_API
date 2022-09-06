@@ -14,10 +14,11 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class Helper {
 
-    public static APICredentials creds = new APICredentials("RGAPI-f2cbf7ad-c6e0-41b3-b8ec-efa6f5b187c4");
+    public static APICredentials creds = new APICredentials("RGAPI-960134aa-1a02-4e12-9314-b6421198f7b2");
     public static R4J r4J = new R4J(creds);
 
     public static final String ANSI_RESET = "\u001B[0m";
@@ -29,24 +30,26 @@ public class Helper {
 
     public static void main(String[] args) {
 
-        r4J.getLoLAPI().getMatchAPI().getMatch(RegionShard.EUROPE, "EUW1_6047845794")
-                .getParticipants().get(0).getChallenges().keySet().forEach(System.out::println);
+        Helper helper = new Helper();
+        helper.updateAllPlayers();
     }
 
-    public Helper() {
+    public Helper() {}
 
+    public void addGamesToSummonerToDB(Summoner summoner){
 
-
-    }
-
-    public void addGamesToDB(Summoner summoner){
-
-        List<String> matchList = r4J.getLoLAPI().getMatchAPI().getMatchList(RegionShard.EUROPE, summoner.getPuuid(),
+        List<String> matchListNormal = r4J.getLoLAPI().getMatchAPI().getMatchList(RegionShard.EUROPE, summoner.getPuuid(),
                 GameQueueType.TEAM_BUILDER_DRAFT_UNRANKED_5X5, MatchlistMatchType.NORMAL, 0, 95,
                 1651619730L, Instant.now().getEpochSecond());
 
+        List<String> matchListRanked = r4J.getLoLAPI().getMatchAPI().getMatchList(RegionShard.EUROPE, summoner.getPuuid(),
+                GameQueueType.TEAM_BUILDER_RANKED_SOLO, MatchlistMatchType.RANKED, 0, 95,
+                1651619730L, Instant.now().getEpochSecond());
 
-        for (String matchString : matchList){
+        List<String> newList = Stream.concat(matchListNormal.stream(), matchListRanked.stream()).toList();
+
+
+        for (String matchString : newList){
 
             if (summoner.getGames().containsKey(matchString)) {
                 System.out.println(ANSI_BLUE +"Game [" + matchString + "] already exists in db for player [" + summoner.getName() +"]"+ ANSI_RESET);
@@ -56,6 +59,7 @@ public class Helper {
                 LOLMatch match = r4J.getLoLAPI().getMatchAPI().getMatch(RegionShard.EUROPE, matchString);
                 MatchParticipant participant = getParticipant(match, summoner).get();
                 Game game = new Game(summoner, matchString);
+                game.setQueueType(match.getQueue().getApiName());
 
                 //Challenges
                 game.setEffectiveHealAndShielding(((Double)participant.getChallenges().get("effectiveHealAndShielding")).intValue());
@@ -109,14 +113,24 @@ public class Helper {
         }
     }
 
-    public Optional<MatchParticipant> getParticipant(LOLMatch lolMatch, Summoner summoner){
+    public void addGamesToAllPlayers(){
 
-        for (MatchParticipant matchParticipant : lolMatch.getParticipants()){
-            if (matchParticipant.getPuuid().equals(summoner.getPuuid())){
-                return Optional.of(matchParticipant);
-            }
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("default");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+        transaction.begin();
+
+        List<Summoner> summoners = entityManager
+                .createQuery("Select a from Summoner a", Summoner.class)
+                .getResultList();
+
+        for (Summoner summoner : summoners){
+            this.addGamesToSummonerToDB(summoner);
         }
-        return Optional.empty();
+
+        transaction.commit();
+        entityManager.close();
+        entityManagerFactory.close();
     }
 
     public void addAllPlayersToDB(){
@@ -159,47 +173,25 @@ public class Helper {
         entityManagerFactory.close();
     }
 
-    public void addGamesToAllPlayers(){
+    public void updateAllPlayers(){
 
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("default");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = entityManager.getTransaction();
-
         transaction.begin();
-
-        List<Summoner> summoners = entityManager
-                .createQuery("Select a from Summoner a", Summoner.class)
-                .getResultList();
-
-        for (Summoner summoner : summoners){
-            this.addGamesToDB(summoner);
-        }
 
         transaction.commit();
         entityManager.close();
         entityManagerFactory.close();
     }
 
-    public void addGamesToPlayer(String playerName){
+    public Optional<MatchParticipant> getParticipant(LOLMatch lolMatch, Summoner summoner){
 
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("default");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        EntityTransaction transaction = entityManager.getTransaction();
-
-        transaction.begin();
-
-        TypedQuery<Summoner> query = entityManager.createQuery("Select a from Summoner a where a.name = ?1", Summoner.class);
-        query.setParameter(1, playerName);
-        List<Summoner> summoners = query.getResultList();
-
-        summoners.forEach(System.out::println);
-
-        for (Summoner summoner : summoners){
-            this.addGamesToDB(summoner);
+        for (MatchParticipant matchParticipant : lolMatch.getParticipants()){
+            if (matchParticipant.getPuuid().equals(summoner.getPuuid())){
+                return Optional.of(matchParticipant);
+            }
         }
-
-        transaction.commit();
-        entityManager.close();
-        entityManagerFactory.close();
+        return Optional.empty();
     }
 }

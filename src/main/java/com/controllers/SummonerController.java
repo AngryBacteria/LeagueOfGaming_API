@@ -1,17 +1,17 @@
 package com.controllers;
+import com.model.SummerStats;
 import com.model.Summoner;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
 import javax.persistence.*;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
+@RequestMapping("/api/summoner")
 public class SummonerController {
 
-    @GetMapping("/api/summoner/{name}")
+    @GetMapping("/name/{name}")
     @ResponseBody
     public Summoner summonerName(@PathVariable String name) {
 
@@ -34,9 +34,9 @@ public class SummonerController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Summoner could not be found");
     }
 
-    @GetMapping("/api/summoner/{puuid}")
+    @GetMapping("/name/{puuid}")
     @ResponseBody
-    public Summoner summonerPUUID(@PathVariable String puuid) {
+    public Summoner summonerPuuid(@PathVariable String puuid) {
 
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("default");
         EntityManager entityManager = emf.createEntityManager();
@@ -55,5 +55,71 @@ public class SummonerController {
             return summoners.get(0);
         else
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Summoner could not be found");
+    }
+
+    @GetMapping("/stats/name/{name}")
+    @ResponseBody
+    public SummerStats summonerStatsName(@PathVariable String name) {
+
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("default");
+        EntityManager entityManager = emf.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+        transaction.begin();
+
+        TypedQuery<Summoner> query = entityManager.createQuery("Select a from Summoner a where a.name = ?1", Summoner.class);
+        query.setParameter(1, name);
+        List<Summoner> summoners = query.getResultList();
+
+        transaction.commit();
+        entityManager.close();
+        emf.close();
+
+        if (summoners.size() > 0)
+            return new SummerStats(summoners.get(0));
+        else
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Summoner Stats could not be found");
+    }
+
+    @GetMapping("/stats/puuid/{puuid}")
+    @ResponseBody
+    public SummerStats summonerStatsPuuid(@PathVariable String puuid) {
+
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("default");
+        EntityManager entityManager = emf.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+        transaction.begin();
+
+        TypedQuery<Summoner> query = entityManager.createQuery("Select a from Summoner a where a.puuid = ?1", Summoner.class);
+        query.setParameter(1, puuid);
+        List<Summoner> summoners = query.getResultList();
+
+        transaction.commit();
+        entityManager.close();
+        emf.close();
+
+        if (summoners.size() > 0)
+            return new SummerStats(summoners.get(0));
+        else
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Summoner Stats could not be found");
+    }
+
+    @GetMapping("/")
+    @ResponseBody
+    public List<Summoner> allSummoners() {
+
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("default");
+        EntityManager entityManager = emf.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+        transaction.begin();
+
+        List<Summoner> summoners = entityManager
+                .createQuery("Select a from Summoner a", Summoner.class)
+                .getResultList();
+
+        transaction.commit();
+        entityManager.close();
+        emf.close();
+
+        return summoners;
     }
 }

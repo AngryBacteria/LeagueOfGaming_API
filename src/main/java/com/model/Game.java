@@ -10,12 +10,14 @@ import java.util.Objects;
 public class Game {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(generator = "GAME_SEQ", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "GAME_SEQ", sequenceName = "GAME_SEQ",allocationSize=1)
     private Long id;
     @ManyToOne
     @JsonIgnore
     private Summoner summoner;
     private String gameURL;
+    private String queueType;
 
     //Challenges
     private Integer effectiveHealAndShielding;
@@ -87,6 +89,14 @@ public class Game {
 
     public String getGameURL() {
         return gameURL;
+    }
+
+    public String getQueueType() {
+        return queueType;
+    }
+
+    public void setQueueType(String queueType) {
+        this.queueType = queueType;
     }
 
     public int getNumberOfPings() {

@@ -14,9 +14,9 @@
         </encoder>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-            <FileNamePattern>application.%i.log</FileNamePattern>
+            <FileNamePattern>logs/application.%i.log</FileNamePattern>
             <MinIndex>1</MinIndex>
-            <MaxIndex>10</MaxIndex>
+            <MaxIndex>1</MaxIndex>
         </rollingPolicy>
 
         <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
