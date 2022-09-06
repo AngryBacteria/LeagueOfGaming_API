@@ -8,10 +8,10 @@ import java.util.Map;
 public class Summoner {
 
     @Id
-    @GeneratedValue(generator = "summoner_SEQ", strategy = GenerationType.SEQUENCE)
-    @SequenceGenerator(name = "summoner_SEQ", sequenceName = "summoner_SEQ",allocationSize=1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    @Column(unique=true)
     private String puuid;
 
 

@@ -10,8 +10,7 @@ import java.util.Objects;
 public class Game {
 
     @Id
-    @GeneratedValue(generator = "game_SEQ", strategy = GenerationType.SEQUENCE)
-    @SequenceGenerator(name = "game_SEQ", sequenceName = "game_SEQ",allocationSize=1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
     @JsonIgnore
@@ -63,7 +62,7 @@ public class Game {
     private Integer timeCCingOthers;
     private Integer totalTimeSpentDead;
     private boolean win;
-    transient private LocalDateTime gameEnd;
+    private LocalDateTime gameEnd;
 
     public Game(Summoner summoner, String gameURL) {
         this.summoner = summoner;

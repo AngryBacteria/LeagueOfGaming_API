@@ -35,7 +35,6 @@ build/
 ### Custom ###
 
 /l4j8cache/
-/src/main/resources/META-INF/persistence.xml
-/src/main/resources/META-INF/persistence2.xml
 /src/main/resources/application.properties
 /logs/
+/src/main/resources/META-INF/*
