@@ -2,9 +2,11 @@ package com.controllers;
 import com.model.SummerStats;
 import com.model.Summoner;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -20,7 +22,7 @@ public class SummonerController {
         EntityTransaction transaction = entityManager.getTransaction();
         transaction.begin();
 
-        TypedQuery<Summoner> query = entityManager.createQuery("Select a from Summoner a where a.name = ?1", Summoner.class);
+        TypedQuery<Summoner> query = entityManager.createQuery("Select a from Summoner a where upper(a.name) = upper(?1)", Summoner.class);
         query.setParameter(1, name);
         List<Summoner> summoners = query.getResultList();
 
@@ -34,7 +36,7 @@ public class SummonerController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Summoner could not be found");
     }
 
-    @GetMapping("/name/{puuid}")
+    @GetMapping("/puuid/{puuid}")
     @ResponseBody
     public Summoner summonerPuuid(@PathVariable String puuid) {
 
@@ -66,7 +68,7 @@ public class SummonerController {
         EntityTransaction transaction = entityManager.getTransaction();
         transaction.begin();
 
-        TypedQuery<Summoner> query = entityManager.createQuery("Select a from Summoner a where a.name = ?1", Summoner.class);
+        TypedQuery<Summoner> query = entityManager.createQuery("Select a from Summoner a where upper(a.name) = upper(?1)", Summoner.class);
         query.setParameter(1, name);
         List<Summoner> summoners = query.getResultList();
 
@@ -101,6 +103,31 @@ public class SummonerController {
             return new SummerStats(summoners.get(0));
         else
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Summoner Stats could not be found");
+    }
+
+    @GetMapping("/stats/")
+    @ResponseBody
+    public List<SummerStats> summonerStatsAll() {
+
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("default");
+        EntityManager entityManager = emf.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+        transaction.begin();
+
+        List<Summoner> summoners = entityManager
+                .createQuery("Select a from Summoner a", Summoner.class)
+                .getResultList();
+
+        transaction.commit();
+        entityManager.close();
+        emf.close();
+
+        List<SummerStats> summerStats = new ArrayList<>();
+        for (Summoner summoner : summoners){
+            summerStats.add(new SummerStats(summoner));
+        }
+
+        return summerStats;
     }
 
     @GetMapping("/")

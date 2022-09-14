@@ -8,17 +8,20 @@ import no.stelar7.api.r4j.basic.constants.types.lol.MatchlistMatchType;
 import no.stelar7.api.r4j.impl.R4J;
 import no.stelar7.api.r4j.pojo.lol.match.v5.LOLMatch;
 import no.stelar7.api.r4j.pojo.lol.match.v5.MatchParticipant;
+import org.postgresql.jdbc.PgConnection;
 
 import javax.persistence.*;
+import java.sql.*;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 public class Helper {
 
-    public static APICredentials creds = new APICredentials("RGAPI-960134aa-1a02-4e12-9314-b6421198f7b2");
+    public static APICredentials creds = new APICredentials("RGAPI-2d92b285-edec-4043-91be-77ffb4527da9");
     public static R4J r4J = new R4J(creds);
 
     public static final String ANSI_RESET = "\u001B[0m";
@@ -31,7 +34,8 @@ public class Helper {
     public static void main(String[] args) {
 
         Helper helper = new Helper();
-        helper.updateAllPlayers();
+        helper.addGamesToAllPlayers();
+
     }
 
     public Helper() {}
@@ -173,6 +177,22 @@ public class Helper {
         entityManagerFactory.close();
     }
 
+    public void addPlayerToDB(String playerName){
+
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("default");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        transaction.begin();
+
+        Summoner summoner = new Summoner(playerName, r4J.getLoLAPI().getSummonerAPI().getSummonerByName(LeagueShard.EUW1, playerName).getPUUID());
+        entityManager.persist(summoner);
+
+        transaction.commit();
+        entityManager.close();
+        entityManagerFactory.close();
+    }
+
     public void updateAllPlayers(){
 
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("default");
@@ -180,9 +200,39 @@ public class Helper {
         EntityTransaction transaction = entityManager.getTransaction();
         transaction.begin();
 
+        List<Summoner> summoners = entityManager
+                .createQuery("Select a from Summoner a", Summoner.class)
+                .getResultList();
+
+        for (Summoner summoner : summoners){
+
+            String apiName = r4J.getLoLAPI().getSummonerAPI().getSummonerByPUUID(LeagueShard.EUW1, summoner.getPuuid()).getName();
+            if (!apiName.equals(summoner.getName())){
+                System.out.println(ANSI_RED + "Changing summoner name from [" + summoner.getName() +
+                        "] To " + apiName + ANSI_RESET);
+                summoner.setName(apiName);
+            }
+
+            String apiPictureURL = this.getSummonerIcon(summoner);
+            if (!apiPictureURL.equals(summoner.getPictureURL())){
+                System.out.println(ANSI_RED + "Changing summoner icon from [" + summoner.getPictureURL() +
+                        "] To " + apiPictureURL + ANSI_RESET);
+                summoner.setPictureURL(apiPictureURL);
+            }
+
+            Integer apiSummonerLvL = this.getSummonerLvL(summoner);
+            if (!Objects.equals(apiSummonerLvL, summoner.getSummonerLvL())){
+                System.out.println(ANSI_RED + "Changing summoner lvl from [" + summoner.getSummonerLvL() +
+                        "] To " + apiSummonerLvL + ANSI_RESET);
+                summoner.setSummonerLvL(apiSummonerLvL);
+            }
+        }
+
         transaction.commit();
         entityManager.close();
         entityManagerFactory.close();
+
+
     }
 
     public Optional<MatchParticipant> getParticipant(LOLMatch lolMatch, Summoner summoner){
@@ -193,5 +243,32 @@ public class Helper {
             }
         }
         return Optional.empty();
+    }
+
+    public String getSummonerIcon(Summoner summoner){
+
+        String latestVersion = r4J.getDDragonAPI().getVersions().get(0);
+        String language = "en_US";
+        int profileIconID = r4J.getLoLAPI().getSummonerAPI().getSummonerByPUUID(LeagueShard.EUW1, summoner.getPuuid()).getProfileIconId();
+        return r4J.getImageAPI().getProfileIcon(String.valueOf(profileIconID), r4J.getDDragonAPI().getVersions().get(0));
+    }
+
+    public String getSummonerIcon(String puuid){
+
+        String latestVersion = r4J.getDDragonAPI().getVersions().get(0);
+        String language = "en_US";
+        int profileIconID = r4J.getLoLAPI().getSummonerAPI().getSummonerByPUUID(LeagueShard.EUW1, puuid).getProfileIconId();
+        return r4J.getImageAPI().getProfileIcon(String.valueOf(profileIconID), r4J.getDDragonAPI().getVersions().get(0));
+    }
+
+    public Integer getSummonerLvL(Summoner summoner){
+
+        return r4J.getLoLAPI().getSummonerAPI().getSummonerByPUUID(LeagueShard.EUW1, summoner.getPuuid()).getSummonerLevel();
+    }
+
+    public String getChampionPicture(String championName){
+
+        String latestVersion = r4J.getDDragonAPI().getVersions().get(0);
+        return "https://ddragon.leagueoflegends.com/cdn/"+latestVersion+"/img/champion/"+championName+".png";
     }
 }

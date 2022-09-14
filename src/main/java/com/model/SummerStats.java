@@ -2,9 +2,9 @@ package com.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.math3.util.Precision;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -52,12 +52,28 @@ public class SummerStats {
         return summoner.getPuuid();
     }
 
+    public Integer getSummonerLvL(){
+        return summoner.getSummonerLvL();
+    }
+
+    public String getPictureURL(){
+        return summoner.getPictureURL();
+    }
+
     public long getWins(){
         return summoner.getGames().values().stream().filter(Game::isWin).count();
     }
 
     public long getLosses(){
         return summoner.getGames().values().stream().filter(Predicate.not(Game::isWin)).count();
+    }
+
+    public double getWinrate(){
+
+        double wins = getWins();
+        double losses = getLosses();
+        double winrate = ((wins / (wins+losses))*100);
+        return Precision.round(winrate, 1);
     }
 
     public int getTotalHealAndShield(){
@@ -116,6 +132,10 @@ public class SummerStats {
         return summoner.getGames().values().stream().mapToInt(Game::getTotalDamageDealtToChampions).sum();
     }
 
+    public int getTotalTimeDead(){
+        return summoner.getGames().values().stream().mapToInt(Game::getTotalTimeSpentDead).sum();
+    }
+
     public int getShortestGame(){
         return summoner.getGames().values().stream().mapToInt(Game::getGameDuration).min().getAsInt();
     }
@@ -136,9 +156,15 @@ public class SummerStats {
         return summoner.getGames().values().stream().mapToInt(Game::getTotalTimeSpentDead).max().getAsInt();
     }
 
-    public int getTotalTimeDead(){
-        return summoner.getGames().values().stream().mapToInt(Game::getTotalTimeSpentDead).sum();
+    public int getMostKillsInOneGame(){
+        return summoner.getGames().values().stream().mapToInt(Game::getKills).max().getAsInt();
     }
 
+    public int getMostAssistsInOneGame(){
+        return summoner.getGames().values().stream().mapToInt(Game::getAssists).max().getAsInt();
+    }
 
+    public int getMostDeathsInOneGame(){
+        return summoner.getGames().values().stream().mapToInt(Game::getDeaths).max().getAsInt();
+    }
 }

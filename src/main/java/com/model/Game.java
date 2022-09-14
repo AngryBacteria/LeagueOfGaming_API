@@ -13,7 +13,7 @@ public class Game {
     @GeneratedValue(generator = "GAME_SEQ", strategy = GenerationType.SEQUENCE)
     @SequenceGenerator(name = "GAME_SEQ", sequenceName = "GAME_SEQ",allocationSize=1)
     private Long id;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private Summoner summoner;
     private String gameURL;

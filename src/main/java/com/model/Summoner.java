@@ -1,7 +1,11 @@
 package com.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -15,10 +19,12 @@ public class Summoner {
     @Column(unique=true)
     private String puuid;
 
-    @OneToMany(mappedBy = "summoner", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "summoner", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @JsonIgnore
     private Map<String, Game> games;
 
     private String pictureURL;
+    private Integer summonerLvL;
 
     public Summoner(String name, String puuid) {
         this.name = name;
@@ -59,8 +65,13 @@ public class Summoner {
         this.games.values().forEach(System.out::println);
     }
 
+    @JsonIgnore
     public Map<String, Game> getGames() {
         return games;
+    }
+
+    public List<Game> getGamesList() {
+        return games.values().stream().sorted(Comparator.comparing(Game::getGameEnd).reversed()).toList();
     }
 
     public String getPictureURL() {
@@ -69,6 +80,18 @@ public class Summoner {
 
     public void setPictureURL(String pictureURL) {
         this.pictureURL = pictureURL;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setSummonerLvL(Integer summonerLvL) {
+        this.summonerLvL = summonerLvL;
+    }
+
+    public Integer getSummonerLvL() {
+        return summonerLvL;
     }
 
     @Override
