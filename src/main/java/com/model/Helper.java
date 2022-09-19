@@ -8,9 +8,15 @@ import no.stelar7.api.r4j.basic.constants.types.lol.MatchlistMatchType;
 import no.stelar7.api.r4j.impl.R4J;
 import no.stelar7.api.r4j.pojo.lol.match.v5.LOLMatch;
 import no.stelar7.api.r4j.pojo.lol.match.v5.MatchParticipant;
+import org.apache.commons.io.IOUtils;
 import org.postgresql.jdbc.PgConnection;
 
 import javax.persistence.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -21,7 +27,7 @@ import java.util.stream.Stream;
 
 public class Helper {
 
-    public static APICredentials creds = new APICredentials("RGAPI-2d92b285-edec-4043-91be-77ffb4527da9");
+    public static APICredentials creds = new APICredentials("RGAPI-a50fbad1-46e7-496c-8629-4e0e8c28f90f");
     public static R4J r4J = new R4J(creds);
 
     public static final String ANSI_RESET = "\u001B[0m";
@@ -66,52 +72,52 @@ public class Helper {
                 game.setQueueType(match.getQueue().getApiName());
 
                 //Challenges
-                game.setEffectiveHealAndShielding(((Double)participant.getChallenges().get("effectiveHealAndShielding")).intValue());
+                game.setAbilityUses(((Double)participant.getChallenges().get("abilityUses")).intValue());
                 game.setBountyGold(((Double)participant.getChallenges().get("bountyGold")).intValue());
+                game.setBuffsStolen(((Double)participant.getChallenges().get("buffsStolen")).intValue());
+                game.setDancedWithRiftHerald(((Double)participant.getChallenges().get("dancedWithRiftHerald")).intValue());
                 //game.setEarliestDragonTakedown(((Double)participant.getChallenges().get("earliestDragonTakedown")).intValue());
+                game.setEffectiveHealAndShielding(((Double)participant.getChallenges().get("effectiveHealAndShielding")).intValue());
                 //game.setFirstTurretKilledTime(((Double)participant.getChallenges().get("firstTurretKilledTime")).intValue());
                 game.setHadOpenNexus(((Double)participant.getChallenges().get("hadOpenNexus")).intValue());
                 game.setMultiKillOneSpell(((Double)participant.getChallenges().get("multiKillOneSpell")).intValue());
-                game.setSurvivedSingleDigitHpCount(((Double)participant.getChallenges().get("survivedSingleDigitHpCount")).intValue());
-                game.setTeamDamagePercentage(((Double)participant.getChallenges().get("teamDamagePercentage")));
-                game.setBuffsStolen(((Double)participant.getChallenges().get("buffsStolen")).intValue());
-                game.setDancedWithRiftHerald(((Double)participant.getChallenges().get("dancedWithRiftHerald")).intValue());
                 game.setSkillshotsDodged(((Double)participant.getChallenges().get("skillshotsDodged")).intValue());
                 game.setSkillshotsHit(((Double)participant.getChallenges().get("skillshotsHit")).intValue());
-                game.setAbilityUses(((Double)participant.getChallenges().get("abilityUses")).intValue());
+                game.setSurvivedSingleDigitHpCount(((Double)participant.getChallenges().get("survivedSingleDigitHpCount")).intValue());
+                game.setTeamDamagePercentage(((Double)participant.getChallenges().get("teamDamagePercentage")));
 
                 //Basic fields
+                game.setAssists(participant.getAssists());
                 game.setChampionID(participant.getChampionId());
+                game.setChampionName(participant.getChampionName());
+                game.setDeaths(participant.getDeaths());
                 game.setDoubleKills(participant.getDoubleKills());
                 game.setFirstBloodKill(participant.isFirstBloodKill());
+                game.setGameDuration(match.getGameDuration());
+                game.setGameEnd(match.getGameEndAsDate().toLocalDateTime());
                 game.setKillingSprees(participant.getKillingSprees());
+                game.setKills(participant.getKills());
+                game.setLargestCriticalStrike(participant.getLargestCriticalStrike());
+                game.setLargestKillingSpree(participant.getLargestKillingSpree());
+                game.setLargestMultiKill(participant.getLargestMultiKill());
                 game.setNeutralMinionsKilled(participant.getNeutralMinionsKilled());
+//                game.setNumberOfPings(participant.getNumberOfPings);
                 game.setObjectivesStolen(participant.getObjectivesStolen());
                 game.setObjectivesStolenAssists(participant.getObjectivesStolenAssists());
                 game.setQuadraKills(participant.getQuadraKills());
+                game.setTeamPosition(participant.getGameDeterminedPosition().getValue());
+                game.setTimeCCingOthers(participant.getTimeCCingOthers());
                 game.setTotalDamageDealt(participant.getTotalDamageDealt());
                 game.setTotalDamageDealtToChampions(participant.getTotalDamageDealtToChampions());
                 game.setTotalDamageTaken(participant.getTotalDamageTaken());
                 game.setTotalMinionsKilled(participant.getTotalMinionsKilled());
+                game.setTotalTimeSpentDead(participant.getTotalTimeSpentDead());
                 game.setTripleKills(participant.getTripleKills());
                 game.setTurretKills(participant.getTurretKills());
                 game.setVisionScore(participant.getVisionScore());
-                game.setDeaths(participant.getDeaths());
-                game.setKills(participant.getKills());
-                game.setAssists(participant.getAssists());
-                game.setGameDuration(match.getGameDuration());
-                game.setChampionName(participant.getChampionName());
-                game.setLargestCriticalStrike(participant.getLargestCriticalStrike());
-                game.setLargestKillingSpree(participant.getLargestKillingSpree());
-                game.setLargestMultiKill(participant.getLargestMultiKill());
-                game.setTeamPosition(participant.getGameDeterminedPosition().getValue());
-                game.setTimeCCingOthers(participant.getTimeCCingOthers());
-                game.setTotalTimeSpentDead(participant.getTotalTimeSpentDead());
                 game.setWin(participant.didWin());
-                game.setGameEnd(match.getGameEndAsDate().toLocalDateTime());
 
                 summoner.addGame(game);
-
                 System.out.println(ANSI_GREEN + "Game [" + game.getGameURL() + "] added to summoner " + summoner.getName() + ANSI_RESET);
             }
         }
@@ -270,5 +276,17 @@ public class Helper {
 
         String latestVersion = r4J.getDDragonAPI().getVersions().get(0);
         return "https://ddragon.leagueoflegends.com/cdn/"+latestVersion+"/img/champion/"+championName+".png";
+    }
+
+    public static String getJsonFromUrl(String url){
+
+        String json = null;
+        try {
+            URL urlObject = new URL(url);
+            json = IOUtils.toString(urlObject, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return json;
     }
 }

@@ -20,51 +20,50 @@ public class Game {
     private String queueType;
 
     //Challenges
-    private Integer effectiveHealAndShielding;
+    private Integer abilityUses;
     private Integer bountyGold;
+    private Integer buffsStolen;
+    private Integer dancedWithRiftHerald;
     //private int earliestDragonTakedown;
+    private Integer effectiveHealAndShielding;
     //private int firstTurretKilledTime;
     private Integer hadOpenNexus;
     private Integer multiKillOneSpell;
-    private Integer survivedSingleDigitHpCount;
-    private double teamDamagePercentage;
-    private Integer buffsStolen;
-    private Integer dancedWithRiftHerald;
     private Integer skillshotsDodged;
     private Integer skillshotsHit;
-    private Integer abilityUses;
+    private Integer survivedSingleDigitHpCount;
+    private double teamDamagePercentage;
 
     //Normal stats
-    private int numberOfPings;
-
+    private Integer assists;
     private Integer championID;
+    private String championName;
+    private Integer deaths;
     private Integer doubleKills;
     private boolean firstBloodKill;
+    private Integer gameDuration;
+    private LocalDateTime gameEnd;
     private Integer killingSprees;
+    private Integer kills;
+    private Integer largestCriticalStrike;
+    private Integer largestKillingSpree;
+    private Integer largestMultiKill;
     private Integer neutralMinionsKilled;
+    private int numberOfPings;
     private Integer objectivesStolen;
     private Integer objectivesStolenAssists;
     private Integer quadraKills;
+    private String teamPosition;
+    private Integer timeCCingOthers;
     private Integer totalDamageDealt;
     private Integer totalDamageDealtToChampions;
     private Integer totalDamageTaken;
     private Integer totalMinionsKilled;
+    private Integer totalTimeSpentDead;
     private Integer tripleKills;
     private Integer turretKills;
     private Integer visionScore;
-    private Integer deaths;
-    private Integer kills;
-    private Integer assists;
-    private Integer gameDuration;
-    private String championName;
-    private Integer largestCriticalStrike;
-    private Integer largestKillingSpree;
-    private Integer largestMultiKill;
-    private String teamPosition;
-    private Integer timeCCingOthers;
-    private Integer totalTimeSpentDead;
     private boolean win;
-    private LocalDateTime gameEnd;
 
     public Game(Summoner summoner, String gameURL) {
         this.summoner = summoner;
@@ -418,6 +417,7 @@ public class Game {
     public void setVisionScore(int visionScore) {
         this.visionScore = visionScore;
     }
+
 
     @Override
     public String toString() {
