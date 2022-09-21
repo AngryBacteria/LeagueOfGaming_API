@@ -38,3 +38,4 @@ build/
 /src/main/resources/application.properties
 /logs/
 /src/main/resources/META-INF/*
+/src/main/resources/config.properties

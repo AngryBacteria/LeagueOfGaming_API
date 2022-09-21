@@ -14,21 +14,20 @@ import org.postgresql.jdbc.PgConnection;
 import javax.persistence.*;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class Helper {
 
-    public static APICredentials creds = new APICredentials("RGAPI-a50fbad1-46e7-496c-8629-4e0e8c28f90f");
-    public static R4J r4J = new R4J(creds);
+    private Properties properties;
+    private final APICredentials creds;
+    private final R4J r4J;
 
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_RED = "\u001B[31m";
@@ -44,7 +43,22 @@ public class Helper {
 
     }
 
-    public Helper() {}
+    public Helper() {
+
+        try (InputStream inputStream = Helper.class.getClassLoader().getResourceAsStream("config.properties")){
+
+            this.properties = new Properties();
+            properties.load(inputStream);
+        }
+
+        catch (IOException e) {
+            System.out.println("Couldn't load up the config file correctly");
+        }
+
+        this.creds = new APICredentials(properties.getProperty("RIOT_API_KEY"));
+        this.r4J = new R4J(this.creds);
+
+    }
 
     public void addGamesToSummonerToDB(Summoner summoner){
 
@@ -278,7 +292,7 @@ public class Helper {
         return "https://ddragon.leagueoflegends.com/cdn/"+latestVersion+"/img/champion/"+championName+".png";
     }
 
-    public static String getJsonFromUrl(String url){
+    public String getJsonFromUrl(String url){
 
         String json = null;
         try {
@@ -288,5 +302,9 @@ public class Helper {
             e.printStackTrace();
         }
         return json;
+    }
+
+    public APICredentials getCreds() {
+        return creds;
     }
 }

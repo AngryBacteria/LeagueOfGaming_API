@@ -64,9 +64,10 @@ public class GameController {
     @ResponseBody
     public String gameFromRiot(@PathVariable String gameid) {
 
-        return Helper.getJsonFromUrl(String.format
+        Helper helper = new Helper();
+        return helper.getJsonFromUrl(String.format
                 ("https://europe.api.riotgames.com/lol/match/v5/matches/%s?api_key=%s",
-                        gameid, Helper.creds.getLoLAPIKey()));
+                        gameid, helper.getCreds().getLoLAPIKey()));
     }
 
 }
