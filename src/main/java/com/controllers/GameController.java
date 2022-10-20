@@ -4,6 +4,7 @@ import com.model.Game;
 import com.model.Helper;
 import com.model.SummerStats;
 import com.model.Summoner;
+import com.model.timeline.TimeLine;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
@@ -68,6 +69,13 @@ public class GameController {
         return helper.getJsonFromUrl(String.format
                 ("https://europe.api.riotgames.com/lol/match/v5/matches/%s?api_key=%s",
                         gameid, helper.getCreds().getLoLAPIKey()));
+    }
+
+    @GetMapping("/riot/timeline/{gameid}")
+    @ResponseBody
+    public TimeLine timeLineFromRiot(@PathVariable String gameid) {
+        Helper helper = new Helper();
+        return helper.getTimeLineFromGame(gameid);
     }
 
 }
