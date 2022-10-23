@@ -94,6 +94,10 @@ public class Summoner {
         return summonerLvL;
     }
 
+    public void setPuuid(String puuid) {
+        this.puuid = puuid;
+    }
+
     @Override
     public String toString() {
         return "Summoner{" +

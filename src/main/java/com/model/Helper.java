@@ -25,9 +25,13 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Stream;
 
+/**
+ * Helper class for the api controllers and some db update queries
+ */
 public class Helper {
 
     private Properties properties;
@@ -44,9 +48,11 @@ public class Helper {
     public static void main(String[] args) {
 
         Helper helper = new Helper();
-        helper.addGamesToAllPlayers();
     }
 
+    /**
+     * Constructor. It reads the config.properties file to parse the RIOT API key needed for many functions
+     */
     public Helper() {
 
         try (InputStream inputStream = Helper.class.getClassLoader().getResourceAsStream("config.properties")){
@@ -64,6 +70,10 @@ public class Helper {
 
     }
 
+    /**
+     * Add the last 95 games (ranked and normal queue) from the Summoner. This method uses the RIOT API
+     * @param summoner Summoner object representing a League of Legends Account
+     */
     public void addGamesToSummonerToDB(Summoner summoner){
 
         List<String> matchListNormal = r4J.getLoLAPI().getMatchAPI().getMatchList(RegionShard.EUROPE, summoner.getPuuid(),
@@ -141,6 +151,9 @@ public class Helper {
         }
     }
 
+    /**
+     * Method that simply gets all players from the db and runs the addGamesToSummonerToDB on all of them
+     */
     public void addGamesToAllPlayers(){
 
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("default");
@@ -161,6 +174,9 @@ public class Helper {
         entityManagerFactory.close();
     }
 
+    /**
+     * Adds all players to the db. This method needs the RIOT API
+     */
     public void addAllPlayersToDB(){
 
         ArrayList<String> players = new ArrayList<>();
@@ -201,6 +217,10 @@ public class Helper {
         entityManagerFactory.close();
     }
 
+    /**
+     * Searches a Player with the RIOT API, crates a summoner object and adds it to the db
+     * @param playerName
+     */
     public void addPlayerToDB(String playerName){
 
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("default");
@@ -217,6 +237,10 @@ public class Helper {
         entityManagerFactory.close();
     }
 
+    /**
+     * Method that updates the fields in the Summoner Objects that are subject to change (such as LvL, Name and ProfileIcon).
+     * This method uses the RIOT API
+     */
     public void updateAllPlayers(){
 
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("default");
@@ -255,10 +279,62 @@ public class Helper {
         transaction.commit();
         entityManager.close();
         entityManagerFactory.close();
-
-
     }
 
+    /**
+     * Method to specifically change the PUUID of all Summoner objects in the db.
+     * This is only needed if the API KEY is chnged as the PUUID is decrypted with it.
+     * This method uses the RIOT API
+     */
+    public void updatePUUIDS(){
+
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("default");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+        transaction.begin();
+
+        List<Summoner> summoners = entityManager
+                .createQuery("Select a from Summoner a", Summoner.class)
+                .getResultList();
+
+        for (Summoner summoner : summoners){
+            String currentPuuid = r4J.getLoLAPI().getSummonerAPI().getSummonerByName(LeagueShard.EUW1, summoner.getName()).getPUUID();
+            if (!currentPuuid.equals(summoner.getPuuid())){
+                System.out.println(ANSI_RED + "Changing summoner puuid from [" + summoner.getPuuid() +
+                        "] To " + currentPuuid + ANSI_RESET);
+                summoner.setPuuid(currentPuuid);
+            }
+        }
+        transaction.commit();
+        entityManager.close();
+        entityManagerFactory.close();
+    }
+
+    /**
+     * Adds Info (last updated) to the metadata table.
+     */
+    public void updateMetadata(){
+
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("default");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+        transaction.begin();
+
+        Metadata metadata = new Metadata(LocalDateTime.now().toString());
+        entityManager.persist(metadata);
+
+        transaction.commit();
+        entityManager.close();
+        entityManagerFactory.close();
+    }
+
+    /**
+     * Gets a Summoner Object from a Match Object.
+     * This method uses the RIOT API indirectly
+     * @param lolMatch Object representing a League of Legends Match (from the r4j Library)
+     * @param summoner Object representing a League of Legends Summoner (My own Implementation)
+     * @return Returns an Object representing a League of Legends Summoner (from the r4j Library)
+     */
     public Optional<MatchParticipant> getParticipant(LOLMatch lolMatch, Summoner summoner){
 
         for (MatchParticipant matchParticipant : lolMatch.getParticipants()){
@@ -269,6 +345,12 @@ public class Helper {
         return Optional.empty();
     }
 
+    /**
+     * Gets the summoner icon URL with a Summoner Object as input.
+     * This method uses the RIOT API
+     * @param summoner Object representing a League of Legends Summoner (My own Implementation)
+     * @return Returns the URL to the png of the summoner icon (profile Picture)
+     */
     public String getSummonerIcon(Summoner summoner){
 
         String latestVersion = r4J.getDDragonAPI().getVersions().get(0);
@@ -277,6 +359,12 @@ public class Helper {
         return r4J.getImageAPI().getProfileIcon(String.valueOf(profileIconID), r4J.getDDragonAPI().getVersions().get(0));
     }
 
+    /**
+     * Gets the summoner icon URL with the PUUID as Input.
+     * This method uses the RIOT API
+     * @param puuid ID from the RIOT API which is decrypted with the RIOT API Key
+     * @return Returns the URL to the png of the summoner icon (profile Picture)
+     */
     public String getSummonerIcon(String puuid){
 
         String latestVersion = r4J.getDDragonAPI().getVersions().get(0);
@@ -285,17 +373,33 @@ public class Helper {
         return r4J.getImageAPI().getProfileIcon(String.valueOf(profileIconID), r4J.getDDragonAPI().getVersions().get(0));
     }
 
+    /**
+     * Gets the summoner lvl from the riot api with a Summoner object as Input.
+     * This method uses the RIOT API
+     * @param summoner Object representing a League of Legends Summoner (My own Implementation)
+     * @return Summoner lvl as an Integer
+     */
     public Integer getSummonerLvL(Summoner summoner){
 
         return r4J.getLoLAPI().getSummonerAPI().getSummonerByPUUID(LeagueShard.EUW1, summoner.getPuuid()).getSummonerLevel();
     }
 
+    /**
+     * Gets the Icon URL of a League of Legends Champion
+     * @param championName Name of a League of Legends Champion
+     * @return URL to a png of the League of Legends champion icon
+     */
     public String getChampionPicture(String championName){
 
         String latestVersion = r4J.getDDragonAPI().getVersions().get(0);
         return "https://ddragon.leagueoflegends.com/cdn/"+latestVersion+"/img/champion/"+championName+".png";
     }
 
+    /**
+     * Gets a Json String from a URL
+     * @param url String representing a URL
+     * @return Returns a String representing a Json
+     */
     public String getJsonFromUrl(String url){
 
         String json = null;
@@ -308,6 +412,11 @@ public class Helper {
         return json;
     }
 
+    /**
+     * Gets the TimeLine (Match info with timestamps) from a GameID String
+     * @param gameId GameID String
+     * @return TimeLine Object (from the r4j Library)
+     */
     public TimeLine getTimeLineFromGame(String gameId){
 
         LOLTimeline lolTimeline = this.getR4J().getLoLAPI().getMatchAPI().getTimeline(RegionShard.EUROPE, gameId);
@@ -333,14 +442,21 @@ public class Helper {
             timeLine.addTeam2Gold(team2Total, index);
             index++;
         }
-
         return timeLine;
     }
 
+    /**
+     * Method which returns the Credentials Object (from the r4j Library)
+     * @return APICredentials Object (from the r4j Library)
+     */
     public APICredentials getCreds() {
         return creds;
     }
 
+    /**
+     * Method which returns the r4j Object which is needed for API calls to the RIOT API
+     * @return R4J Object
+     */
     public R4J getR4J() {
         return r4J;
     }
