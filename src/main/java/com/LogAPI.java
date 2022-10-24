@@ -41,7 +41,7 @@ public class LogAPI {
 
         long delay = 1000L;
         //24 hours
-        long day = 1000L * 60L * 60L * 6L;
+        long day = 1000L * 60L * 60L * 24L;
         //long threeminute = 1000L * 60L * 3;
         timer.scheduleAtFixedRate(repeatedTask, delay, day);
         SpringApplication.run(LogAPI.class, args);

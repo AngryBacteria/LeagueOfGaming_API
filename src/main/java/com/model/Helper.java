@@ -25,7 +25,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -48,6 +50,9 @@ public class Helper {
     public static void main(String[] args) {
 
         Helper helper = new Helper();
+        helper.addGamesToAllPlayers();
+        helper.updateAllPlayers();
+        helper.updateMetadata();
     }
 
     /**
@@ -320,7 +325,12 @@ public class Helper {
         EntityTransaction transaction = entityManager.getTransaction();
         transaction.begin();
 
-        Metadata metadata = new Metadata(LocalDateTime.now().toString());
+        long summonerCount = (long)entityManager.createQuery("select count(s) from Summoner s").getSingleResult();
+        long matchCount = (long)entityManager.createQuery("select count(g) from Game g").getSingleResult();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/LL/yyyy - HH:mm");
+        Metadata metadata = new Metadata(LocalDateTime.now().format(formatter),
+                summonerCount, matchCount);
         entityManager.persist(metadata);
 
         transaction.commit();
