@@ -1,7 +1,5 @@
-package com.model.leaderboard;
+package angryb.model.leaderboard;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.List;
 
 public class Leaderboard {

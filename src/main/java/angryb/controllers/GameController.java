@@ -1,12 +1,9 @@
-package com.controllers;
+package angryb.controllers;
 
-import com.model.Game;
-import com.model.Helper;
-import com.model.SummerStats;
-import com.model.Summoner;
-import com.model.timeline.TimeLine;
+import angryb.model.Game;
+import angryb.model.Helper;
+import angryb.model.timeline.TimeLine;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 

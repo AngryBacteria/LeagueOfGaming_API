@@ -1,12 +1,4 @@
-package com.model.timeline;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.model.Helper;
-import no.stelar7.api.r4j.basic.constants.api.regions.RegionShard;
-import no.stelar7.api.r4j.pojo.lol.match.v5.LOLTimeline;
-import no.stelar7.api.r4j.pojo.lol.match.v5.TimelineFrame;
-import no.stelar7.api.r4j.pojo.lol.match.v5.TimelineParticipantFrame;
+package angryb.model.timeline;
 
 import java.util.ArrayList;
 

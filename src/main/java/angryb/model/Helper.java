@@ -1,11 +1,6 @@
-package com.model;
+package angryb.model;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.model.timeline.TimeLine;
+import angryb.model.timeline.TimeLine;
 import no.stelar7.api.r4j.basic.APICredentials;
 import no.stelar7.api.r4j.basic.constants.api.regions.LeagueShard;
 import no.stelar7.api.r4j.basic.constants.api.regions.RegionShard;
@@ -14,18 +9,13 @@ import no.stelar7.api.r4j.basic.constants.types.lol.MatchlistMatchType;
 import no.stelar7.api.r4j.impl.R4J;
 import no.stelar7.api.r4j.pojo.lol.match.v5.*;
 import org.apache.commons.io.IOUtils;
-import org.postgresql.jdbc.PgConnection;
 
 import javax.persistence.*;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.sql.*;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -469,5 +459,9 @@ public class Helper {
      */
     public R4J getR4J() {
         return r4J;
+    }
+
+    public Properties getProperties() {
+        return properties;
     }
 }

@@ -1,4 +1,4 @@
-package com.model.timeline;
+package angryb.model.timeline;
 
 public class TeamGold {
 

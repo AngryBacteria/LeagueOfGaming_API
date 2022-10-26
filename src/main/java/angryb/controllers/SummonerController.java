@@ -1,8 +1,7 @@
-package com.controllers;
-import com.model.SummerStats;
-import com.model.Summoner;
+package angryb.controllers;
+import angryb.model.SummerStats;
+import angryb.model.Summoner;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import javax.persistence.*;

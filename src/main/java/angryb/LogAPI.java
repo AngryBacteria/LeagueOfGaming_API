@@ -1,6 +1,6 @@
-package com;
+package angryb;
 
-import com.model.Helper;
+import angryb.model.Helper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -28,9 +28,10 @@ public class LogAPI {
 
     public static void main(String[] args) {
 
+        Helper helper = new Helper();
         TimerTask repeatedTask = new TimerTask() {
             public void run() {
-                Helper helper = new Helper();
+
                 helper.addGamesToAllPlayers();
                 helper.updateAllPlayers();
                 helper.updateMetadata();
@@ -40,9 +41,8 @@ public class LogAPI {
         Timer timer = new Timer("Timer");
 
         long delay = 1000L;
-        //24 hours
         long day = 1000L * 60L * 60L * 24L;
-        //long threeminute = 1000L * 60L * 3;
+
         timer.scheduleAtFixedRate(repeatedTask, delay, day);
         SpringApplication.run(LogAPI.class, args);
     }

@@ -1,7 +1,6 @@
-package com.controllers;
+package angryb.controllers;
 
-import com.model.Game;
-import com.model.Metadata;
+import angryb.model.Metadata;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -17,7 +16,7 @@ import java.util.List;
 @RequestMapping("/api/metadata")
 public class MetaDataController {
 
-    @GetMapping("/")
+    @GetMapping("/latest")
     @ResponseBody
     public Metadata getMetaData(){
 
@@ -35,6 +34,24 @@ public class MetaDataController {
         emf.close();
 
         return metadata.get(0);
+    }
+
+    @GetMapping("/")
+    @ResponseBody
+    public List<Metadata> getMetaAllData(){
+
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("default");
+        EntityManager entityManager = emf.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+        transaction.begin();
+
+        List<Metadata> metadata = entityManager
+                .createQuery("Select m from Metadata m order by m.id desc", Metadata.class).getResultList();
+
+        transaction.commit();
+        entityManager.close();
+        emf.close();
+        return metadata;
     }
 
 }
