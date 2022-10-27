@@ -1,6 +1,6 @@
-package angryb.controllers;
+package angryb.old.controllers;
 
-import angryb.model.Metadata;
+import angryb.old.model.Metadata;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;

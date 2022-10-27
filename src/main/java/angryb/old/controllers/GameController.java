@@ -1,8 +1,8 @@
-package angryb.controllers;
+package angryb.old.controllers;
 
-import angryb.model.Game;
-import angryb.model.Helper;
-import angryb.model.timeline.TimeLine;
+import angryb.old.model.Game;
+import angryb.old.model.Helper;
+import angryb.old.model.timeline.TimeLine;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;

@@ -1,6 +1,6 @@
-package angryb.model;
+package angryb.old.model;
 
-import angryb.model.timeline.TimeLine;
+import angryb.old.model.timeline.TimeLine;
 import no.stelar7.api.r4j.basic.APICredentials;
 import no.stelar7.api.r4j.basic.constants.api.regions.LeagueShard;
 import no.stelar7.api.r4j.basic.constants.api.regions.RegionShard;

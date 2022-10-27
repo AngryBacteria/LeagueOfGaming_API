@@ -1,6 +1,6 @@
-package angryb.controllers;
-import angryb.model.SummerStats;
-import angryb.model.Summoner;
+package angryb.old.controllers;
+import angryb.old.model.SummerStats;
+import angryb.old.model.Summoner;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;

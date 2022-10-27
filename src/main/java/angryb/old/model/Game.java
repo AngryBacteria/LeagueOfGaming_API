@@ -1,4 +1,4 @@
-package angryb.model;
+package angryb.old.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

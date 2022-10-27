@@ -1,4 +1,4 @@
-package angryb.model.leaderboard;
+package angryb.old.model.leaderboard;
 
 public class NameAndValue {
 

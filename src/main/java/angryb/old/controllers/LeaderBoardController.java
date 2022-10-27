@@ -1,7 +1,7 @@
-package angryb.controllers;
+package angryb.old.controllers;
 
-import angryb.model.leaderboard.Leaderboard;
-import angryb.model.leaderboard.NameAndValue;
+import angryb.old.model.leaderboard.Leaderboard;
+import angryb.old.model.leaderboard.NameAndValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;

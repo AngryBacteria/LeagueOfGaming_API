@@ -1,4 +1,4 @@
-package angryb.model;
+package angryb.old.model;
 
 import javax.persistence.*;
 
