@@ -74,5 +74,4 @@ public class GameController {
         Helper helper = new Helper();
         return helper.getTimeLineFromGame(gameid);
     }
-
 }
