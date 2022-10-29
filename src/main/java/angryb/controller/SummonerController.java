@@ -22,6 +22,6 @@ public class SummonerController {
 
     @GetMapping("/get/all")
     public List<Summoner> getAllSummoners(){
-        return summonerService.getAllSummmoners();
+        return summonerService.getAllSummoners();
     }
 }

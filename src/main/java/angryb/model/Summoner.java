@@ -19,7 +19,8 @@ public class Summoner {
     @Column(unique=true)
     private String puuid;
 
-    @OneToMany(mappedBy = "summoner", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @MapKeyColumn(name = "key")
+    @OneToMany(mappedBy = "summoner", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore
     private Map<String, Game> games;
 

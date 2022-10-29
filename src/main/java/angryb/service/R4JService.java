@@ -1,7 +1,7 @@
-package angryb.model;
+package angryb.service;
 
-import angryb.repository.SummonerRepository;
-import angryb.service.SummonerService;
+import angryb.model.Game;
+import angryb.model.Summoner;
 import no.stelar7.api.r4j.basic.APICredentials;
 import no.stelar7.api.r4j.basic.constants.api.regions.LeagueShard;
 import no.stelar7.api.r4j.basic.constants.api.regions.RegionShard;
@@ -10,15 +10,8 @@ import no.stelar7.api.r4j.basic.constants.types.lol.MatchlistMatchType;
 import no.stelar7.api.r4j.impl.R4J;
 import no.stelar7.api.r4j.pojo.lol.match.v5.LOLMatch;
 import no.stelar7.api.r4j.pojo.lol.match.v5.MatchParticipant;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Service;
-import org.springframework.web.jsf.FacesContextUtils;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -26,11 +19,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 @Service("Init")
-public class Init {
+public class R4JService {
 
     private final APICredentials creds;
     private final R4J r4J;
-    private final SummonerService summonerService;
 
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_RED = "\u001B[31m";
@@ -44,20 +36,19 @@ public class Init {
     }
 
     @Autowired
-    public Init(SummonerService summonerService) {
-        this.summonerService = summonerService;
+    public R4JService() {
         this.creds = new APICredentials("RGAPI-c11f6576-d7d3-4409-b0f4-10cb00b7c70e");
         this.r4J = new R4J(this.creds);
     }
 
-    public void addGamesToSummonerToDB(Summoner summoner){
+    public void addGamesToSummonerToDB(Summoner summoner, SummonerService summonerService){
 
         List<String> matchListNormal = r4J.getLoLAPI().getMatchAPI().getMatchList(RegionShard.EUROPE, summoner.getPuuid(),
-                GameQueueType.TEAM_BUILDER_DRAFT_UNRANKED_5X5, MatchlistMatchType.NORMAL, 0, 95,
+                GameQueueType.TEAM_BUILDER_DRAFT_UNRANKED_5X5, MatchlistMatchType.NORMAL, 0, 3,
                 1651619730L, Instant.now().getEpochSecond());
 
         List<String> matchListRanked = r4J.getLoLAPI().getMatchAPI().getMatchList(RegionShard.EUROPE, summoner.getPuuid(),
-                GameQueueType.TEAM_BUILDER_RANKED_SOLO, MatchlistMatchType.RANKED, 0, 95,
+                GameQueueType.TEAM_BUILDER_RANKED_SOLO, MatchlistMatchType.RANKED, 0, 3,
                 1651619730L, Instant.now().getEpochSecond());
 
         List<String> newList = Stream.concat(matchListNormal.stream(), matchListRanked.stream()).toList();
@@ -125,6 +116,7 @@ public class Init {
                 System.out.println(ANSI_GREEN + "Game [" + game.getGameURL() + "] added to summoner " + summoner.getName() + ANSI_RESET);
             }
         }
+        summonerService.persistSummoner(summoner);
     }
 
     public Optional<MatchParticipant> getParticipant(LOLMatch lolMatch, Summoner summoner){
@@ -137,7 +129,7 @@ public class Init {
         return Optional.empty();
     }
 
-    public void addAllPlayersToDB(){
+    public List<Summoner> createAllSummoners(){
 
         ArrayList<String> players = new ArrayList<>();
         //Cap
@@ -161,11 +153,15 @@ public class Init {
         players.add("UnifixingGoblin5");
         players.add("Theera3rd");
 
+        List<Summoner> summoners = new ArrayList<>();
         for (String playerName : players){
 
-            Summoner summoner = new Summoner(playerName, r4J.getLoLAPI().getSummonerAPI().getSummonerByName(LeagueShard.EUW1, playerName).getPUUID());
-            //this.summonerService.persistSummoner(summoner);
+            no.stelar7.api.r4j.pojo.lol.summoner.Summoner summonerApiObject = r4J.getLoLAPI().getSummonerAPI().getSummonerByName(LeagueShard.EUW1, playerName);
+            Summoner summoner = new Summoner(playerName, summonerApiObject.getPUUID());
+            summoner.setSummonerLvL(summonerApiObject.getSummonerLevel());
+            summoners.add(summoner);
         }
+        return summoners;
     }
 
     public R4J getR4J() {
