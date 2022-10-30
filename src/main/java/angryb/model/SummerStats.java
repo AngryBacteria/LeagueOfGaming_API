@@ -1,0 +1,138 @@
+package angryb.model;
+
+import org.apache.commons.math3.util.Precision;
+
+import java.util.function.Predicate;
+
+public class SummerStats {
+
+    private Summoner summoner;
+
+    public SummerStats(Summoner summoner) {
+        this.summoner = summoner;
+    }
+
+    public String getName(){
+        return summoner.getName();
+    }
+
+    public String getPuuid(){
+        return summoner.getPuuid();
+    }
+
+    public Integer getSummonerLvL(){
+        return summoner.getSummonerLvL();
+    }
+
+    public String getPictureURL(){
+        return summoner.getPictureURL();
+    }
+
+    public long getWins(){
+        return summoner.getGames().values().stream().filter(Game::isWin).count();
+    }
+
+    public long getLosses(){
+        return summoner.getGames().values().stream().filter(Predicate.not(Game::isWin)).count();
+    }
+
+    public double getWinrate(){
+
+        double wins = getWins();
+        double losses = getLosses();
+        double winrate = ((wins / (wins+losses))*100);
+        return Precision.round(winrate, 1);
+    }
+
+    public int getTotalHealAndShield(){
+        return summoner.getGames().values().stream().mapToInt(Game::getEffectiveHealAndShielding).sum();
+    }
+
+    public int getTotalBuffsStolen(){
+        return summoner.getGames().values().stream().mapToInt(Game::getBuffsStolen).sum();
+    }
+
+    public int getTotalObjectivesStolen(){
+        return summoner.getGames().values().stream().mapToInt(Game::getObjectivesStolen).sum();
+    }
+
+    public int getTotalDancedWithRiftHerald(){
+        return summoner.getGames().values().stream().mapToInt(Game::getDancedWithRiftHerald).sum();
+    }
+
+    public int getTotalSkillshotsDodged(){
+        return summoner.getGames().values().stream().mapToInt(Game::getSkillshotsDodged).sum();
+    }
+
+    public int getTotalSkillshotsHit(){
+        return summoner.getGames().values().stream().mapToInt(Game::getSkillshotsHit).sum();
+    }
+
+    public int getTotalAbilityUses(){
+        return summoner.getGames().values().stream().mapToInt(Game::getAbilityUses).sum();
+    }
+
+    public int getTotalDeaths(){
+        return summoner.getGames().values().stream().mapToInt(Game::getDeaths).sum();
+    }
+
+    public int getTotalKills(){
+        return summoner.getGames().values().stream().mapToInt(Game::getKills).sum();
+    }
+
+    public int getTotalAssists(){
+        return summoner.getGames().values().stream().mapToInt(Game::getAssists).sum();
+    }
+
+    public int getTotalTurretKills(){
+        return summoner.getGames().values().stream().mapToInt(Game::getTurretKills).sum();
+    }
+
+    public int getTotalMinionsKilled(){
+        return summoner.getGames().values().stream().mapToInt(Game::getTotalMinionsKilled).sum();
+    }
+
+    public int getTotalDamageTaken(){
+        return summoner.getGames().values().stream().mapToInt(Game::getTotalDamageTaken).sum();
+    }
+
+    public int getTotalDamageDealtToChampions(){
+        return summoner.getGames().values().stream().mapToInt(Game::getTotalDamageDealtToChampions).sum();
+    }
+
+    public int getTotalTimeDead(){
+        return summoner.getGames().values().stream().mapToInt(Game::getTotalTimeSpentDead).sum();
+    }
+
+    public int getShortestGame(){
+        return summoner.getGames().values().stream().mapToInt(Game::getGameDuration).min().getAsInt();
+    }
+
+    public int getLongestGame(){
+        return summoner.getGames().values().stream().mapToInt(Game::getGameDuration).max().getAsInt();
+    }
+
+    public int getLargestCrit(){
+        return summoner.getGames().values().stream().mapToInt(Game::getLargestCriticalStrike).max().getAsInt();
+    }
+
+    public int getLongestTimeCCingOthers(){
+        return summoner.getGames().values().stream().mapToInt(Game::getTimeCCingOthers).max().getAsInt();
+    }
+
+    public int getLongestTimeDead(){
+        return summoner.getGames().values().stream().mapToInt(Game::getTotalTimeSpentDead).max().getAsInt();
+    }
+
+    public int getMostKillsInOneGame(){
+        return summoner.getGames().values().stream().mapToInt(Game::getKills).max().getAsInt();
+    }
+
+    public int getMostAssistsInOneGame(){
+        return summoner.getGames().values().stream().mapToInt(Game::getAssists).max().getAsInt();
+    }
+
+    public int getMostDeathsInOneGame(){
+        return summoner.getGames().values().stream().mapToInt(Game::getDeaths).max().getAsInt();
+    }
+}

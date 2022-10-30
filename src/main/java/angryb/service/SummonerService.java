@@ -29,4 +29,8 @@ public class SummonerService {
     public void persistSummoners(List<Summoner> summoners){
         summonerRepository.saveAll(summoners);
     }
+
+    public long numberOfSummoners(){
+        return this.summonerRepository.count();
+    }
 }

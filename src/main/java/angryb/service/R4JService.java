@@ -2,17 +2,21 @@ package angryb.service;
 
 import angryb.model.Game;
 import angryb.model.Summoner;
+import angryb.model.timeline.TimeLine;
 import no.stelar7.api.r4j.basic.APICredentials;
 import no.stelar7.api.r4j.basic.constants.api.regions.LeagueShard;
 import no.stelar7.api.r4j.basic.constants.api.regions.RegionShard;
 import no.stelar7.api.r4j.basic.constants.types.lol.GameQueueType;
 import no.stelar7.api.r4j.basic.constants.types.lol.MatchlistMatchType;
 import no.stelar7.api.r4j.impl.R4J;
-import no.stelar7.api.r4j.pojo.lol.match.v5.LOLMatch;
-import no.stelar7.api.r4j.pojo.lol.match.v5.MatchParticipant;
+import no.stelar7.api.r4j.pojo.lol.match.v5.*;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -159,12 +163,65 @@ public class R4JService {
             no.stelar7.api.r4j.pojo.lol.summoner.Summoner summonerApiObject = r4J.getLoLAPI().getSummonerAPI().getSummonerByName(LeagueShard.EUW1, playerName);
             Summoner summoner = new Summoner(playerName, summonerApiObject.getPUUID());
             summoner.setSummonerLvL(summonerApiObject.getSummonerLevel());
+            summoner.setPictureURL(this.getSummonerIcon(summoner.getPuuid()));
             summoners.add(summoner);
         }
         return summoners;
     }
 
+    public String getJsonFromUrl(String url){
+
+        String json = null;
+        try {
+            URL urlObject = new URL(url);
+            json = IOUtils.toString(urlObject, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return json;
+    }
+
+    public APICredentials getCreds() {
+        return creds;
+    }
+
     public R4J getR4J() {
         return r4J;
+    }
+
+    public TimeLine getTimeLineFromGame(String gameId){
+
+        LOLTimeline lolTimeline = this.getR4J().getLoLAPI().getMatchAPI().getTimeline(RegionShard.EUROPE, gameId);
+        TimeLine timeLine = new TimeLine();
+
+        for (TimelineParticipantIdentity participantIdentity : lolTimeline.getParticipants()){
+            timeLine.addPlayer(participantIdentity.getPuuid());
+        }
+
+        int index = 0;
+        for (TimelineFrame frame : lolTimeline.getFrames()){
+
+            int team1Total = 0;
+            int team2Total = 0;
+            for (TimelineParticipantFrame participantFrame : frame.getParticipantFrames().values()){
+
+                if (participantFrame.getParticipantId() < 6)
+                    team1Total = team1Total + participantFrame.getTotalGold();
+                else
+                    team2Total = team2Total + participantFrame.getTotalGold();
+            }
+            timeLine.addTeam1Gold(team1Total, index);
+            timeLine.addTeam2Gold(team2Total, index);
+            index++;
+        }
+        return timeLine;
+    }
+
+    public String getSummonerIcon(String puuid){
+
+        String latestVersion = r4J.getDDragonAPI().getVersions().get(0);
+        String language = "en_US";
+        int profileIconID = r4J.getLoLAPI().getSummonerAPI().getSummonerByPUUID(LeagueShard.EUW1, puuid).getProfileIconId();
+        return r4J.getImageAPI().getProfileIcon(String.valueOf(profileIconID), r4J.getDDragonAPI().getVersions().get(0));
     }
 }

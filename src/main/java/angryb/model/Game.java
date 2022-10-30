@@ -16,6 +16,7 @@ public class Game {
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private Summoner summoner;
+    private long summonerID;
     private String gameURL;
     private String queueType;
 
@@ -418,6 +419,9 @@ public class Game {
         this.visionScore = visionScore;
     }
 
+    public long getSummonerID() {
+        return this.summoner.getId();
+    }
 
     @Override
     public String toString() {
