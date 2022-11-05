@@ -28,8 +28,8 @@ public class LogAPI {
         InitService initService = applicationContext.getBean(InitService.class);
         initService.initializeSummoners();
         initService.addGamesToSummoners();
-        initService.updateMetadata();
-        Thread.sleep(60_000);
-        initService.updateMetadata();
+//        initService.updateMetadata();
+//        Thread.sleep(60_000);
+//        initService.updateMetadata();
     }
 }

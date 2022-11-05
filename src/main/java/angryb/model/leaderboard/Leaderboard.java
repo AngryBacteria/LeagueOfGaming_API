@@ -38,4 +38,13 @@ public class Leaderboard {
     public void setMaxValue(int maxValue) {
         this.maxValue = maxValue;
     }
+
+    @Override
+    public String toString() {
+        return "Leaderboard{" +
+                "nameAndValue=" + nameAndValue +
+                ", leaderBoardName='" + leaderBoardName + '\'' +
+                ", maxValue=" + maxValue +
+                '}';
+    }
 }
