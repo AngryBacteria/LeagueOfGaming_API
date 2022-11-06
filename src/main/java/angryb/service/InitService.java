@@ -38,6 +38,11 @@ public class InitService {
         }
     }
 
+    public void testNullValuesInGame(){
+        Summoner summoner = this.summonerService.getAllSummoners().get(0);
+        r4JService.addTestGameToSummoner(summoner, summonerService);
+    }
+
     public void updateMetadata(){
 
         long numberOfSummoners = this.summonerService.numberOfSummoners();

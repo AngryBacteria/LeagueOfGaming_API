@@ -26,10 +26,10 @@ public class LogAPI {
         //SpringApplication.run(LogAPI.class, args);
         ApplicationContext applicationContext = SpringApplication.run(LogAPI.class, args);
         InitService initService = applicationContext.getBean(InitService.class);
-        initService.initializeSummoners();
-        initService.addGamesToSummoners();
+//        initService.addGamesToSummoners();
 //        initService.updateMetadata();
 //        Thread.sleep(60_000);
 //        initService.updateMetadata();
+        System.out.println("---------------------------DONE---------------------------");
     }
 }

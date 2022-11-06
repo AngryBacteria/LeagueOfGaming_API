@@ -48,11 +48,11 @@ public class R4JService {
     public void addGamesToSummonerToDB(Summoner summoner, SummonerService summonerService){
 
         List<String> matchListNormal = r4J.getLoLAPI().getMatchAPI().getMatchList(RegionShard.EUROPE, summoner.getPuuid(),
-                GameQueueType.TEAM_BUILDER_DRAFT_UNRANKED_5X5, MatchlistMatchType.NORMAL, 0, 3,
+                GameQueueType.TEAM_BUILDER_DRAFT_UNRANKED_5X5, MatchlistMatchType.NORMAL, 480, 90,
                 1651619730L, Instant.now().getEpochSecond());
 
         List<String> matchListRanked = r4J.getLoLAPI().getMatchAPI().getMatchList(RegionShard.EUROPE, summoner.getPuuid(),
-                GameQueueType.TEAM_BUILDER_RANKED_SOLO, MatchlistMatchType.RANKED, 0, 3,
+                GameQueueType.TEAM_BUILDER_RANKED_SOLO, MatchlistMatchType.RANKED, 480, 90,
                 1651619730L, Instant.now().getEpochSecond());
 
         List<String> newList = Stream.concat(matchListNormal.stream(), matchListRanked.stream()).toList();
@@ -120,6 +120,13 @@ public class R4JService {
                 System.out.println(ANSI_GREEN + "Game [" + game.getGameURL() + "] added to summoner " + summoner.getName() + ANSI_RESET);
             }
         }
+        summonerService.persistSummoner(summoner);
+    }
+
+    public void addTestGameToSummoner(Summoner summoner, SummonerService summonerService){
+
+        Game game = new Game(summoner, "megacoolgametest123");
+        summoner.addGame(game);
         summonerService.persistSummoner(summoner);
     }
 
